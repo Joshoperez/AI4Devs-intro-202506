@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reverse String</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        #textInput {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        #textInput:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+            background: white;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            margin-bottom: 25px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #43a047, #66bb6a);
+            color: white;
+            margin-top: 15px;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(67, 160, 71, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .result-container {
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            border: 2px dashed #667eea;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .result-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #resultText {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            word-break: break-all;
+            line-height: 1.4;
+        }
+
+        .placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        .copy-feedback {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transform: translateX(300px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .copy-feedback.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Reverse String</h1>
+        
+        <div class="input-group">
+            <input 
+                type="text" 
+                id="textInput" 
+                placeholder="Escribe el texto que deseas revertir..."
+                maxlength="500"
+            >
+        </div>
+        
+        <button class="btn btn-primary" id="reverseBtn">
+            Reversa
+        </button>
+        
+        <div class="result-container" id="resultContainer">
+            <div id="resultText" class="placeholder">
+                El texto revertido aparecerá aquí...
+            </div>
+        </div>
+        
+        <button class="btn btn-secondary" id="copyBtn" disabled>
+            Copiar al Portapapeles
+        </button>
+    </div>
+
+    <div class="copy-feedback" id="copyFeedback">
+        ¡Texto copiado al portapapeles!
+    </div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const reverseBtn = document.getElementById('reverseBtn');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultText = document.getElementById('resultText');
+        const copyBtn = document.getElementById('copyBtn');
+        const copyFeedback = document.getElementById('copyFeedback');
+
+        let reversedText = '';
+
+        // Función para revertir el texto
+        function reverseString(str) {
+            return str.split('').reverse().join('');
+        }
+
+        // Función para mostrar el resultado
+        function showResult(text) {
+            resultText.textContent = text;
+            resultText.classList.remove('placeholder');
+            resultContainer.classList.add('show');
+            copyBtn.disabled = false;
+            reversedText = text;
+        }
+
+        // Función para ocultar el resultado
+        function hideResult() {
+            resultContainer.classList.remove('show');
+            resultText.classList.add('placeholder');
+            resultText.textContent = 'El texto revertido aparecerá aquí...';
+            copyBtn.disabled = true;
+            reversedText = '';
+        }
+
+        // Event listener para el botón de reversa
+        reverseBtn.addEventListener('click', function() {
+            const inputText = textInput.value.trim();
+            
+            if (inputText === '') {
+                alert('Por favor, ingresa algún texto para revertir.');
+                textInput.focus();
+                return;
+            }
+
+            const reversed = reverseString(inputText);
+            showResult(reversed);
+        });
+
+        // Event listener para presionar Enter en el input
+        textInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                reverseBtn.click();
+            }
+        });
+
+        // Event listener para detectar cambios en el input
+        textInput.addEventListener('input', function() {
+            if (this.value.trim() === '') {
+                hideResult();
+            }
+        });
+
+        // Función para copiar al portapapeles
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showCopyFeedback();
+            } catch (err) {
+                // Fallback para navegadores que no soportan la API moderna
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    showCopyFeedback();
+                } catch (err) {
+                    alert('No se pudo copiar el texto. Por favor, selecciona y copia manualmente.');
+                }
+                
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // Función para mostrar feedback de copiado
+        function showCopyFeedback() {
+            copyFeedback.classList.add('show');
+            setTimeout(() => {
+                copyFeedback.classList.remove('show');
+            }, 2000);
+        }
+
+        // Event listener para el botón de copiar
+        copyBtn.addEventListener('click', function() {
+            if (reversedText) {
+                copyToClipboard(reversedText);
+            }
+        });
+
+        // Enfocar el input al cargar la página
+        window.addEventListener('load', function() {
+            textInput.focus();
+        });
+    </script>
+</body>
+</html>
